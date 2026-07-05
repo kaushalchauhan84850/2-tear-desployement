@@ -60,7 +60,7 @@ jobs:
           sleep 30
 
           aws ssm list-command-invocations \
-          --command-id "${{ steps.smoke.outputs.cmd_id }}"
+          --command-id "${{ steps.smoke.outputs.cmd_id }}" \
           --details \
           --region us-east-1 \
           --output text
