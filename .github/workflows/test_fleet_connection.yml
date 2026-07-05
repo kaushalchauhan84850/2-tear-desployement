@@ -33,32 +33,32 @@ jobs:
             --query 'Command.CommandId' \
             --output text \
             --region us-east-1)
-            
+
           echo "Command ID: $CMD_ID"
           echo "cmd_id=$CMD_ID" >> $GITHUB_OUTPUT
 
       - name: Show Result
         run: |
-          sleep 20
+          sleep 60
 
           aws ssm list-command-invocations \
             --command-id "${{ steps.health.outputs.cmd_id }}" \
             --details \
-            --region us-east-1 \
             --query "CommandInvocations[*].{Instance:InstanceId,Status:Status,IP:CommandPlugins[0].Output}" \
-            --output text
+            --output text \
+            --region us-east-1 
 
           FAILD=$(
             aws ssm list-command-invocations \
               --command-id "${{ steps.health.outputs.cmd_id }}" \
               --details \
-              --query "length(CommandInvocation[?Status=='Faild'])" \
+              --query "length(CommandInvocations[?Status=='Faild'])" \
               --output text \
               --region us-east-1 
             )
 
           [ "$FAILD" -gt 0 ] && \
-          echo "::error::Health Check Faild on $FAILD instance" && \
+          echo "::error::Health Check Faild on $FAILD instance(s)" && \
           exit 1
 
 
