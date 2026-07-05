@@ -2,6 +2,10 @@ name : Smoke Testing For Infra and Network
 
 on: 
   workflow_call:
+
+permissions:
+  id-token: write
+  contents: read
     
 jobs:
   test:
