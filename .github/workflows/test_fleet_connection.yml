@@ -44,7 +44,7 @@ jobs:
             --command-id "${{ steps.health.outputs.cmd_id }}" \
             --details \
             --region us-east-1 \
-            --query "CommandInvocations[*].{Instance:InstanceId,Status,IP:CommandPlugins[0].Output}" \
+            --query "CommandInvocations[*].{Instance:InstanceId,Status:Status,IP:CommandPlugins[0].Output}" \
             --output text
 
           FAILD=$(
