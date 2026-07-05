@@ -17,14 +17,26 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::416394563192:role/github-action_deploy_policy
-          aws-region: us-east-1
+          aws-region: us-east-1    
+
+      - name: Create S3 bucket if it doesn't exist
+        run: |
+          BUCKET_NAME=416394563192-devops-script
+
+          if ! aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
+            echo "Creating bucket $BUCKET_NAME..."
+            aws s3api create-bucket \
+             --bucket "$BUCKET_NAME" \
+            --region us-east-1
+          else
+            echo "Bucket already exists."
+          fi
 
       - name: Upload smoke_test.py on AWS
         run: |
           aws s3 cp smoke_test.py \
           s3://416394563192-my-devops-script-109/smoke_test.py \
-          --region us-east-1
-
+          --region us-east-1    
 
       - name: Run smoke test on fleet
         id: smoke
@@ -33,9 +45,9 @@ jobs:
           --targets "Key=tag:App,Values=flask" \
           --document-name "AWS-RunShellScript" \
           --parameters '{"commands":[
-          "aws s3 cp s3://416394563192-my-devops-script-109/smoke_test.py  /tmpr/smoke_test.py",
-          "python3 /tmpr/smoke_test.py",
-          "rm /tmpr/smoke_test.py"
+          "aws s3 cp s3://416394563192-devops-script/smoke_test.py  /tmp/smoke_test.py",
+          "python3 /tmp/smoke_test.py",
+          "rm /tmp/smoke_test.py"
           ]}' \
           --query 'Command.CommandId' \
           --output text \
