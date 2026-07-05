@@ -1,9 +1,7 @@
-name : Test Workflow
+name: Test Fleet Health and env Variable
 
-on: 
-  push:
-    branches:
-      - main
+on:
+  workflow_dispatch:
 
 permissions:
   id-token: write
@@ -16,16 +14,17 @@ jobs:
     steps:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::416394563192:role/github-action_deploy_policy
+          role-to-assume: arn:aws:iam::416394563192:role/github-action-deploy-role
           aws-region: us-east-1
 
       - name: Print Private IPs
         run: |
           CMD_ID=$(aws ssm send-command \
-            --targets "Key=tag:App,Values=flask" \
+            --targets "key=tag:App,Values=flask" \
             --document-name "AWS-RunShellScript" \
             --parameters '{"commands":["hostname -I"]}' \
-            --query 'Command.CommandId' --output text
+            --query 'Commands.CommandId' \
+            --output text
           )
 
           sleep 30

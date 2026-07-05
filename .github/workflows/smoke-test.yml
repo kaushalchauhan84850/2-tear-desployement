@@ -1,0 +1,13 @@
+name : Smoke Testing For Infra and Network
+
+on: 
+  workflow_dispatch
+    
+jobs:
+  working-job:
+    runs-on: ubuntu-latest
+
+
+    steps:
+    - name: Echo messege
+      run: echo "Somke Test successfully"    

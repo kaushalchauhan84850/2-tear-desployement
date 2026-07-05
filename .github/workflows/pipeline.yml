@@ -1,0 +1,45 @@
+name: Main pipeline for oerchstration
+
+
+on: 
+  push:
+    branches:
+      - Main
+  workflow_dispatch
+
+
+jobs:
+  verify:
+    uses: ./.github/workflow/test-connection.yml
+    permissions:
+      id-token: write
+      contents: read
+
+  test_fleet_health_envs:
+    needs: verify_connection
+    uses: ./.github/workflow/test_fleet_connection.yml
+    permissions:
+      id-token: write
+      contents: read
+
+
+  smoke_testing:
+    needs: test_fleet_health_envs
+    uses: ./.github/workflow/smoke-test.yml
+    permissions:
+      id-token: write
+      contents: read    
+
+  build_push:
+    needs: smoke_testing
+    uses: ./.github/workflow/build-push.yml
+    permissions:
+      id-token: write
+      contents: read
+
+  deploy:
+    needs: smoke_testing
+    uses: ./.github/workflow/deploy.yml
+    permissions:
+      id-token: write
+      contents: read    
