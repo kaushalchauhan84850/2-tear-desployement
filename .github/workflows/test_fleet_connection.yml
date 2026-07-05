@@ -1,8 +1,7 @@
-name : Test fleet health and env variable
+name: Test fleet health and env variable
 
 on:
   workflow_call:
-    
 
 permissions:
   id-token: write
@@ -18,25 +17,48 @@ jobs:
           role-to-assume: arn:aws:iam::416394563192:role/github-action_deploy_policy
           aws-region: us-east-1
 
-      - name: Print Private IPs
+      - name: Fleet heatlh check
+        id: health
         run: |
           CMD_ID=$(aws ssm send-command \
             --targets "Key=tag:App,Values=flask" \
             --document-name "AWS-RunShellScript" \
             --parameters '{"commands":[
-            "hostname -I"
+            "hostname -I",
             "docker --version 2>/dev/null || echo DOCKER NOT INSTALLED",
             "aws --version 2>/dev/null || echo AWS NOT INSTALLED",
             "mysql --version 2>/dev/null || echo MYSQL NOT INSTALLED",
             "aws ssm get-parameters-by-path --path /application/testing --with-decryption --region us-east-1"
             ]}' \
-            --query 'Command.CommandId' --output text
-          )
+            --query 'Command.CommandId' \
+            --output text \
+            --region us-east-1)
 
-          sleep 30
+          echo "cmd_id"=$"CMD_ID" >> $GITHUB_OUTPUT
+
+      - name: Show Result
+        run: |
+          sleep 20
 
           aws ssm list-command-invocations \
-            --command-id "$CMD_ID" \
+            --command-id "${{ steps.health.outputs.cmd_id }}" \
             --details \
-            --query "CommandInvocations[*].{Instance:InstanceId,IP:CommandPlugins[0].Output}" \
-            --output table
+            --region us-east-1 \
+            --query "CommandInvocations[*].{Instance:InstanceId,Status,IP:CommandPlugins[0].Output}" \
+            --output text
+
+          FAILD=$(
+            aws ssm list-command-invocations \
+              --command-id "${{ steps.health.outputs.cmd_id }}" \
+              --details \
+              --query "length(CommandInvocation[?Status=='Faild'])" \
+              --output text \
+              --region us-east-1 
+            )
+
+          [ "$FAILD" -gt 0 ] && \
+          echo "::error::Health Check Faild on $FAILD instance" && \
+          exit 1
+
+
+          echo "All Instance Healthy"  
