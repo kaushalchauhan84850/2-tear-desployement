@@ -43,7 +43,7 @@ jobs:
           aws ssm list-command-invocations \
             --command-id "${{ steps.health.outputs.cmd_id }}" \
             --details \
-            --query "CommandInvocations[*].{Instance:InstanceId,Status,IP:CommandPlugins[0].Output}" \
+            --query "CommandInvocations[*].{Instance:InstanceId,Status:Status,IP:CommandPlugins[0].Output}" \
             --output text \
             --region us-east-1 
 
