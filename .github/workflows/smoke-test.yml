@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      
+      - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::416394563192:role/github-action_deploy_policy
@@ -15,7 +17,7 @@ jobs:
 
       - name: Upload smoke_test.py on AWS
         run: |
-          aws s3 cp smoke_test.py
+          aws s3 cp smoke_test.py \
           s3://416394563192-my-devops-script-109/smoke_test.py \
           --region us-east-1
 
@@ -29,7 +31,7 @@ jobs:
           --parameters '{"commands":[
           "aws s3 cp s3://416394563192-my-devops-script-109/smoke_test.py  /tmpr/smoke_test.py",
           "python3 /tmpr/smoke_test.py",
-          "rm /tmpr/smoke_test.py""
+          "rm /tmpr/smoke_test.py"
           ]}' \
           --query 'Command.CommandId' \
           --output text \
@@ -45,7 +47,7 @@ jobs:
           --command-id "${{ steps.smoke.outputs.cmd_id }}"
           --details \
           --region us-east-1
-          --output test
+          --output text
 
           FAILD=$(
             aws ssm list-command-invocations \
