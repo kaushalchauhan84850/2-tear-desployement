@@ -23,7 +23,13 @@ jobs:
           CMD_ID=$(aws ssm send-command \
             --targets "Key=tag:App,Values=flask" \
             --document-name "AWS-RunShellScript" \
-            --parameters '{"commands":["hostname -I"]}' \
+            --parameters '{"commands":[
+            "hostname -I"
+            "docker --version 2>/dev/null || echo DOCKER NOT INSTALLED",
+            "aws --version 2>/dev/null || echo AWS NOT INSTALLED",
+            "mysql --version 2>/dev/null || echo MYSQL NOT INSTALLED",
+            "aws ssm get-parameters-by-path --path /application/testing --with-decryption --region us-east-1"
+            ]}' \
             --query 'Command.CommandId' --output text
           )
 
