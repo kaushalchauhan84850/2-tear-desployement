@@ -10,14 +10,14 @@ on:
 
 jobs:
   verify:
-    uses: ./.github/workflow/test-connection.yml
+    uses: ./.github/workflows/test-connection.yml
     permissions:
       id-token: write
       contents: read
 
   test_fleet_health_envs:
     needs: verify_connection
-    uses: ./.github/workflow/test_fleet_connection.yml
+    uses: ./.github/workflows/test_fleet_connection.yml
     permissions:
       id-token: write
       contents: read
@@ -25,21 +25,21 @@ jobs:
 
   smoke_testing:
     needs: test_fleet_health_envs
-    uses: ./.github/workflow/smoke-test.yml
+    uses: ./.github/workflows/smoke-test.yml
     permissions:
       id-token: write
       contents: read    
 
   build_push:
     needs: smoke_testing
-    uses: ./.github/workflow/build-push.yml
+    uses: ./.github/workflows/build-push.yml
     permissions:
       id-token: write
       contents: read
 
   deploy:
     needs: smoke_testing
-    uses: ./.github/workflow/deploy.yml
+    uses: ./.github/workflows/deploy.yml
     permissions:
       id-token: write
       contents: read    
