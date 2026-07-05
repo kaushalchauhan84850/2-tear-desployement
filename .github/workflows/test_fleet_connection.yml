@@ -51,7 +51,7 @@ jobs:
             aws ssm list-command-invocations \
               --command-id "${{ steps.health.outputs.cmd_id }}" \
               --details \
-              --query "length(CommandInvocations[?Status=='Faield'])" \
+              --query "length(CommandInvocations[?Status=='Failed'])" \
               --output text \
               --region us-east-1 
             )
