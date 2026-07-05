@@ -4,7 +4,7 @@ name: Main pipeline for oerchstration
 on: 
   push:
     branches:
-      - Main
+      - main
   workflow_dispatch:
 
 
