@@ -35,7 +35,7 @@ jobs:
       - name: Upload smoke_test.py on AWS
         run: |
           aws s3 cp smoke_test.py \
-          s3://416394563192-my-devops-script-109/smoke_test.py \
+          s3://416394563192-devops-script/smoke_test.py \
           --region us-east-1    
 
       - name: Run smoke test on fleet
