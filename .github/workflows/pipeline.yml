@@ -22,15 +22,8 @@ jobs:
       id-token: write
       contents: read    
 
-  build_push:
-    needs: smoke_testing
-    uses: ./.github/workflows/build-push.yml
-    permissions:
-      id-token: write
-      contents: read
-
   deploy:
-    needs: build_push
+    needs: smoke_testing
     uses: ./.github/workflows/deploy.yml
     permissions:
       id-token: write

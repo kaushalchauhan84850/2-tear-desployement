@@ -1,14 +1,37 @@
-name : Application Deploying on AWS
+name: Application Deploying on AWS
 
-on: 
+on:
   workflow_call:
-    
-    
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  VERSION: v1
+  IMAGE: 416394563192.dkr.ecr.us-east-1.amazonaws.com/simplebank:${IMAGE_TAG:-latest}
+  REGION: us-east-1
+  S3_BUCKET: s3://416394563192-devops-script
+
 jobs:
-  working-job:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
-
     steps:
-    - name: Echo messege
-      run: echo "application deploy on aws successfully"    
+      - uses: actions/checkout@v4
+        with:
+          repository: kaushalchauhan84850/2-tear-desployement
+          ref: main
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::416394563192:role/github-action_deploy_policy
+          aws-region: ${{ env.REGION }}
+
+      - name: Login to ECR
+        run: |
+          aws ecr get-login-password --region ${{ env.REGION }} | \
+          docker login --username AWS --password-stdin \
+          416394563192.dkr.ecr.${{ env.REGION }}.amazonaws.com
+
+          echo "Login successfully to ECR ✅"
