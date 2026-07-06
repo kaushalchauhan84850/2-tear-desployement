@@ -30,7 +30,7 @@ jobs:
       contents: read
 
   deploy:
-    needs: smoke_testing
+    needs: build_push
     uses: ./.github/workflows/deploy.yml
     permissions:
       id-token: write
