@@ -34,7 +34,7 @@ def generate_account_number():
 
 @app.route('/health')
 def health():
-    return True
+    return "OK" , 200
 
 # ─── Home ───────────────────────────────────────────────
 @app.route('/')
