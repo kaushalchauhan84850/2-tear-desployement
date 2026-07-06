@@ -37,8 +37,7 @@ jobs:
           --parameters '{"commands":[
           "aws s3 cp s3://416394563192-devops-script/init.py /tmp/init.py",
           "aws s3 cp s3://416394563192-devops-script/init.sql /tmp/init.sql",
-          "cd /tmp",
-          "python3 init.py",
+          "python3 /tmp/init.py",
           "rm -f /tmp/init.py /tmp/init.sql"
           ]}' \
           --query 'Command.CommandId' \
