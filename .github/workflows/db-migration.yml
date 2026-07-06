@@ -1,0 +1,29 @@
+name: Initializing Database
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  init-db:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::416394563192:role/github-action_deploy_policy
+          aws-region: us-east-1
+
+      - name: Upload Files to S3
+        run: |
+          aws s3 mb s3://416394563192-devops-script --region us-east-1 2>/dev/null || true
+          aws s3 cp init.py s3://416394563192-devops-script/init.py
+          aws s3 cp init.sql s3://416394563192-devops-script/init.sql
+          echo "✅ File Are Uploaded to bucket.."
