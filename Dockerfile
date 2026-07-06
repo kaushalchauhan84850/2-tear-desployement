@@ -14,4 +14,5 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["gunicorn","--bind","0.0.0.0:5000","--workers","z","app:app"]
+# FIX: Changed "--workers", "z" to "--workers", "3"
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "3", "app:app"]
