@@ -46,25 +46,29 @@ jobs:
 
           echo "cmd_id=$CMD_ID" >> $GITHUB_OUTPUT  
 
-      - name: show Result
+      - name: Show Result
         run: |
           sleep 30
 
           aws ssm list-command-invocations \
-          --command-id "${{ steps.init.outputs.cmd_id }}" \
-          --details \
-          --region us-east-1 \
-          --output text
+            --command-id "${{ steps.init.outputs.cmd_id }}" \
+            --details \
+            --region us-east-1 \
+            --query "CommandInvocations[*].{Instance:InstanceId,Status:Status,Output:CommandPlugins[0].Output}" \
+            --output table
 
-          FAILD=$(
-            aws ssm list-command-invocations \
-              --command-id "${{ steps.init.outputs.cmd_id }}" \
-              --details \
-              --query "length(CommandInvocations[?Status=='Failed'])" \
-              --output text \
-              --region us-east-1 
-            )
+          FAILED=$(aws ssm list-command-invocations \
+            --command-id "${{ steps.init.outputs.cmd_id }}" \
+            --details \
+            --region us-east-1 \
+            --query "length(CommandInvocations[?Status=='Failed'])" \
+            --output text)
 
-          [ "$FAILD" -gt 0 ] && \
-          echo "::error::db Initializing Check Faild on $FAILD instance(s)" && \
-          exit 1    
+          echo "Failed Instances: $FAILED"
+
+          if [ "$FAILED" -gt 0 ]; then
+            echo "::error::$FAILED instance(s) failed database initialization."
+            exit 1
+          fi
+
+          echo "✅ Database initialized successfully on all instances."
