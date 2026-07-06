@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 if os.getenv("FLASK_ENV") == "production":
     client=boto3.client("ssm",region_name="us-east-1")
     for p in client.get_parameters_by_path(
-        path="/application/testing",
+        Path="/application/testing",
         WithDecryption=True
         )["Parameters"]:
           os.environ.setdefault(os.path.basename(p["Name"]),p["Value"])
