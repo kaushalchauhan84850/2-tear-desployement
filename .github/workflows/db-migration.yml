@@ -27,3 +27,45 @@ jobs:
           aws s3 cp init.py s3://416394563192-devops-script/init.py
           aws s3 cp init.sql s3://416394563192-devops-script/init.sql
           echo "✅ File Are Uploaded to bucket.."
+
+      - name: Initializing Database on RDS using EC2 
+        run: |
+          CMD_ID=$(aws ssm send-command \
+          --targets "Key=tag:App,Values=flask" \
+          --document-name "AWS-RunShellScript" \
+          --parameters '{"commands":[
+          "aws s3 cp s3://416394563192-devops-script/init.py /tmp/init.py",
+          "aws s3 cp s3://416394563192-devops-script/init.sql /tmp/init.sql",
+          "cd /tmp",
+          "python3 init.py",
+          "rm -f /tmp/init.py /tmp/init.sql"
+          ]}' \
+          --query 'Command.CommandId' \
+          --output text \
+          --region us-east-1)
+
+          echo "cmd_id=$CMD_ID" >> $GITHUB_OUTPUT  
+
+      - name: show Result
+        run: |
+          sleep 30
+
+          aws ssm list-command-invocations \
+          --command-id "${{ steps.init.outputs.cmd_id }}" \
+          --details \
+          --query "CommandInvocations[*].{Instance:InstanceId,Status:Status,IP:CommandPlugins[0].Output}" \
+          --region us-east-1 \
+          --output text
+
+          FAILD=$(
+            aws ssm list-command-invocations \
+              --command-id "${{ steps.init.outputs.cmd_id }}" \
+              --details \
+              --query "length(CommandInvocations[?Status=='Failed'])" \
+              --output text \
+              --region us-east-1 
+            )
+
+          [ "$FAILD" -gt 0 ] && \
+          echo "::error::db Initializing Check Faild on $FAILD instance(s)" && \
+          exit 1    
