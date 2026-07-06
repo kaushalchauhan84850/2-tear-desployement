@@ -74,9 +74,18 @@ jobs:
               --region us-east-1 
             )
 
-          [ "$FAILD" -gt 0 ] && \
-          echo "::error::smoke Check Faild on $FAILD instance(s)" && \
-          exit 1
+          echo "FAILED=$FAILED"
+
+          if [ -z "$FAILED" ]; then
+            FAILED=0
+          fi
+
+          if [ "$FAILED" -gt 0 ]; then
+            echo "::error::Smoke test failed on $FAILED instance(s)"
+            exit 1
+          fi
+
+          echo "✅ Smoke test passed on all instances."
 
 
 
