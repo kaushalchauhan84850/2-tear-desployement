@@ -29,6 +29,7 @@ jobs:
           echo "✅ File Are Uploaded to bucket.."
 
       - name: Initializing Database on RDS using EC2 
+        id: init
         run: |
           CMD_ID=$(aws ssm send-command \
           --targets "Key=tag:App,Values=flask" \
@@ -53,7 +54,6 @@ jobs:
           aws ssm list-command-invocations \
           --command-id "${{ steps.init.outputs.cmd_id }}" \
           --details \
-          --query "CommandInvocations[*].{Instance:InstanceId,Status:Status,IP:CommandPlugins[0].Output}" \
           --region us-east-1 \
           --output text
 
