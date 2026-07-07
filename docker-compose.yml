@@ -4,7 +4,7 @@ services:
     image: 416394563192.dkr.ecr.us-east-1.amazonaws.com/simplebank:${IMAGE_TAG:-latest}
     container_name: simplebank_app
     ports:
-      - "5000:5000"
+      - "80:5000"
     environment: 
       FLASK_ENV: production
     restart: unless-stopped 
