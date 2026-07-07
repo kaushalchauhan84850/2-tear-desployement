@@ -1,6 +1,5 @@
 services:
   simplebank_app:
-    # FIX: Changed $(IMAGE_TAG:-latest) to ${IMAGE_TAG:-latest}
     image: 416394563192.dkr.ecr.us-east-1.amazonaws.com/simplebank:${IMAGE_TAG:-latest}
     container_name: simplebank_app
     ports:
