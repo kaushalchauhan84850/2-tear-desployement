@@ -21,7 +21,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 5: Code Checkout
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
@@ -32,7 +31,6 @@ jobs:
         run: |
           echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
-      # Step 6: AWS Credentials Authorization via OIDC
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -46,7 +44,6 @@ jobs:
           docker login --username AWS --password-stdin ${{ env.REGISTRY }}
           echo "Login successfully to ECR ✅"
 
-      # Step 7: Containerization (Build & Push to ECR)
       - name: Build, Tag, and Push Docker Image
         run: |
           docker build -t ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }} .
@@ -56,13 +53,11 @@ jobs:
           docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:latest
           echo "Docker image pushed to ECR successfully! 🚀"
 
-      # Step 8: Sync Configurations to S3 Bucket
       - name: Upload Docker Compose Configuration to S3
         run: |
           aws s3 cp docker-compose.yml s3://${{ env.S3_BUCKET_NAME }}/docker-compose.yml
           echo "docker-compose.yml synchronized to S3 bucket! 📦"
 
-      # Step 9: Trigger Automated Tag-Targeted Run Command via SSM
       - name: Execute Remote Deployment via AWS SSM Tag Targeting
         run: |
           COMMAND_ID=$(aws ssm send-command \
